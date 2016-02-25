@@ -10,12 +10,15 @@ NEW
 
 */
 
+
 //node modules
 var express = require('express');
 var app = express();
 var pg = require('pg');
-var conString = "postgres://codemog:demography@104.197.26.248/acs1014";
+var csv = require('express-csv');
 
+var conString = "postgres://codemog:demography@104.197.26.248:5433/acs1014";
+var lastbranchdone=0;
 
 var allowCrossDomain = function(req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
@@ -371,6 +374,24 @@ function array_merge() {
   return retObj;
 }  
   
+function array_unshift(array) {
+  //  discuss at: http://phpjs.org/functions/array_unshift/
+  // original by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+  // improved by: Martijn Wieringa
+  // improved by: jmweb
+  //        note: Currently does not handle objects
+  //   example 1: array_unshift(['van', 'Zonneveld'], 'Kevin');
+  //   returns 1: 3
+
+  var i = arguments.length;
+
+  while (--i !== 0) {
+    arguments[0].unshift(arguments[i]);
+  }
+
+  return arguments[0].length;
+}  
+  
   
   
   var field = req.query.field || "undefined";
@@ -504,9 +525,12 @@ if (field==="undefined"){
   
     function check() {
         if (field === undefined || field ==="undefined") {
-          setTimeout(check, 10); 
+          setTimeout(check, 50); 
+          console.log('waiting...');
         }else{
+          console.log('field: '+field);
           continue_program();
+          main_logic();
         }
     }
 
@@ -514,6 +538,11 @@ if (field==="undefined"){
       
   
   function continue_program(){
+    
+        function onlyUnique(value, index, self) { 
+        return self.indexOf(value) === index;
+      }
+    
   // we have fields: either hand entered or derived from tables
 
     
@@ -538,9 +567,7 @@ if (field==="undefined"){
 
     //remove duplicate field names
     
-    function onlyUnique(value, index, self) { 
-        return self.indexOf(value) === index;
-      }
+
     
     ttlfields = ttlfields.filter( onlyUnique );
     
@@ -593,9 +620,227 @@ if (field==="undefined"){
     
 }
 
-  //LEFT OFF HERE from demogpost:
+
+function main_logic()  {
+    //CASE 1:  you have a geonum
+//essentially you don't care about anything else.  just get the data for that/those geonum(s)
+if (geonum!=="undefined"){
+
+  //as far as errors go, tell people they are wasting their time specifying sumlev, state, county, place and geoid if they specified geonum.
+if (state!=="undefined"){errorarray.push('You specified STATE.  This parameter is ignored when you also specify GEONUM');};
+if (county!=="undefined"){errorarray.push('You specified COUNTY.  This parameter is ignored when you also specify GEONUM');};
+if (sumlev!=="undefined"){errorarray.push('You specified SUMLEV.  This parameter is ignored when you also specify GEONUM');};
+if (geoid!=="undefined"){errorarray.push('You specified GEOID.  This parameter is ignored when you also specify GEONUM');};
   
-  //CASE 1:  you have a geonum
+    //break the comma delimited records from geonum into an array  
+  var geonumarray=explode(",", geonum);
+  
+//iterate through all geonum's
+  for(var z=0;z<geonumarray.length;z++){
+    joinlist=joinlist + " geonum=" + geonumarray[z] + " or";
+  }
+  
+  
+  //trim last trailing 'or'
+  joinlist=substr(joinlist,0,-2);
+  
+//END CASE 1
+} else if (geoid !== "undefined") {
+//CASE 2:  you have a geoid
+  
+  //as far as errors go, tell people they are wasting their time specifying sumlev, state, county, place and geoid if they specified geonum.
+if (state!=="undefined"){errorarray.push('You specified STATE.  This parameter is ignored when you also specify GEOID');};
+if (county!=="undefined"){errorarray.push('You specified COUNTY.  This parameter is ignored when you also specify GEOID');};
+if (sumlev!=="undefined"){errorarray.push('You specified SUMLEV.  This parameter is ignored when you also specify GEOID');};
+  
+      //break the comma delimited records from geonum into an array  
+  var geoidarray=explode(",", geoid);
+  
+//iterate through all geoids, simply put a '1' in front and treat them like geonums
+  for(var y=0;y<geoidarray.length;y++){
+    joinlist=joinlist + " geonum=1" + geoidarray[y] + " or";
+  }  
+  //trim last trailing 'or'
+  joinlist=substr(joinlist,0,-2);
+ 
+//END CASE 2  
+} else if (sumlev!=="undefined" || county!=="undefined" || state!=="undefined"){
+  //CASE 3 - query
+  
+  var condition=""; //condition is going to be a 3 character string which identifies sumlev, county, state (yes/no) (1,0)
+  if(sumlev!=="undefined"){condition = "1";}else{condition = "0";}
+  if(county!=="undefined"){condition = condition + "1";}else{condition = condition + "0";}
+  if(state!=="undefined"){condition = condition + "1";}else{condition = condition + "0";}
+
+  
+   
+  if(county!=="undefined"){
+//create county array out of delimited list
+    var countylist="";
+  
+    //break the comma delimited records from county into an array  
+  var countyarray=explode(",", county);
+  
+//iterate through all counties
+  for(var x=0;x<countyarray.length;x++){
+    countylist=countylist + " county=" + countyarray[x] + " or";
+  }
+    
+  //trim last trailing 'or'
+  countylist=substr(countylist,0,-2);
+  }
+  
+  
+   if(state!=="undefined"){
+//create state array out of delimited list
+       var statelist="";
+  
+    //break the comma delimited records from county into an array  
+  var statearray=explode(",", state);
+  
+//iterate through all states
+     for(var u=0;u<statearray.length;u++){
+       statelist=statelist + " state=" + statearray[u] + " or";
+     }
+  
+  //trim last trailing 'or'
+  statelist=substr(statelist,0,-2);
+   }
+  
+  
+   if(sumlev!=="undefined"){
+//create sumlev array out of delimited list
+       var sumlevlist="";
+  
+    //break the comma delimited records from county into an array  
+  var sumlevarray=explode(",", sumlev);
+  
+//iterate through all sumlevs
+     for(var v=0;v<sumlevarray.length;v++){
+       sumlevlist=sumlevlist + " sumlev=" + sumlevarray[v] + " or";
+     }
+  
+  //trim last trailing 'or'
+  sumlevlist=substr(sumlevlist,0,-2);
+   }
+   
+  //every possible combination of sumlev, county, state
+  if(condition==='001'){joinlist = " (" + statelist + ") ";}
+  if(condition==='011'){joinlist = " (" + countylist + ") and (" + statelist + ") ";}
+  if(condition==='111'){joinlist = " (" + sumlevlist + ") and (" + countylist + ") and (" + statelist + ") ";}
+  if(condition==='010'){joinlist = " (" + countylist + ") ";}
+  if(condition==='110'){joinlist = " (" + sumlevlist + ") and (" + countylist + ")";}
+  if(condition==='100'){joinlist = " (" + sumlevlist + ") ";}
+  if(condition==='101'){joinlist = " (" + sumlevlist + ") and (" + statelist + ") ";}
+  
+  //END CASE 3
+} else {
+  // CASE 4: No Geo
+  errorarray.push('No geography specified.');
+  return 'error'; //goto a;
+//END CASE 4
+}
+  
+  
+  //CONSTRUCT MAIN SQL STATEMENT
+// execute query
+var sql = "SELECT geoname, state, county, place, tract, bg, geonum, " + field + " from search." + schema + jointablelist + " where" + joinlist + " limit " + limit + ";";  
+  
+    console.log(sql);
+  
+ sendtodatabase(sql);  //ASYNC
+  
+}
+
+function formatandsend(){
+  
+      function check2() {
+        if (lastbranchdone === 0) {
+          console.log('waiting tablemeta...');
+          setTimeout(check2, 50); 
+        }else{
+          createlast();
+        }
+    }
+
+    check2();
+    
+  
+  function createlast(){
+//meta first record is combined with results from iteration over every query result row
+  var withmeta={};
+  withmeta.source=db;
+  withmeta.schema=schema;
+  withmeta.tablemeta=tblarrfull;
+  withmeta.fieldmeta=metaarrfull;
+  withmeta.data=fullarray;
+  withmeta.error=errorarray;
+
+    
+        if(type==='csv'){
+          
+          //fullarray to array, not object
+          var notobject=[];
+          var interarr=[];
+          
+          for(var q=0;q<fullarray.length;q++){
+            interarr=[];
+                for (var key in fullarray[q]) {
+                  if (fullarray[q].hasOwnProperty(key)) {
+                    interarr.push(fullarray[q][key]);
+                    }
+                  }
+            notobject.push(interarr);
+          }
+          
+    //header("Content-Type: text/csv");
+    //header("Content-Disposition: attachment; filename=file.csv");
+    // Disable caching
+    //header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1
+    //header("Pragma: no-cache"); // HTTP 1.0
+    //header("Expires: 0"); // Proxies
+      
+  //add geonum to front of fields row array
+  array_unshift(ttlfields, "geonum"); 
+  array_unshift(ttlfields, "bg");  
+  array_unshift(ttlfields, "tract");      
+  array_unshift(ttlfields, "place");
+  array_unshift(ttlfields, "county");
+  array_unshift(ttlfields, "state");
+  array_unshift(ttlfields, "geoname");
+      
+    //add geonum description to front of metadata row array
+  array_unshift(metacsv, "Unique ID");
+  array_unshift(metacsv, "BG FIPS");
+  array_unshift(metacsv, "Tract FIPS");     
+  array_unshift(metacsv, "Place FIPS");
+  array_unshift(metacsv, "County FIPS");
+  array_unshift(metacsv, "State FIPS");     
+  array_unshift(metacsv, "Geographic Area Name");
+
+  array_unshift(notobject, metacsv);
+  array_unshift(notobject, ttlfields);
+
+          //console.log(notobject);
+          res.setHeader('Content-disposition', 'attachment; filename=CO_DemogExport.csv')
+          res.csv(notobject);
+          
+  }else{
+
+                res.set({
+                    "Content-Type": "application/json"
+                });
+                res.send(JSON.stringify(withmeta));
+  }
+                
+
+    
+    return;
+  }
+  
+return;
+}
+
   
   return;
   
@@ -617,11 +862,34 @@ if (field==="undefined"){
                 if (err) {
                     return console.error('error running query', err);
                 }
+              
+              var resultdata=result.rows;
 
-                res.set({
-                    "Content-Type": "application/json"
-                });
-                res.send(JSON.stringify(result.rows));
+
+                //add geoname as first element in every result record array
+            fullarray=[];
+              var tempobject={};
+              
+              for(var t=0;t<resultdata.length;t++){
+                console.log(resultdata[t]);
+                
+                tempobject={};
+                
+                for (var key in resultdata[t]) {
+                  if (resultdata[t].hasOwnProperty(key)) {
+                    tempobject[key] = resultdata[t][key];
+                    if((key==='state' || key==='place' || key==='county') && (resultdata[t][key])){
+                      tempobject[key] = (resultdata[t][key]).toString(); //the three vars above need to be converted to strings to be consistant. (if not null)
+                    }
+                    }
+                  }
+                
+               fullarray.push(tempobject);
+           
+              }
+
+              
+              formatandsend();
 
 
                 client.end();
@@ -708,7 +976,6 @@ if (field==="undefined"){
               } //end branch2
 
               if(branch===3){
-
                 var tblarr={};
                 for(var q=0;q<tableresult.length;q++){
                   tblarr={};
@@ -717,10 +984,10 @@ if (field==="undefined"){
                   tblarr.universe = tableresult[q].universe;
                   tblarrfull.push(tblarr);
                 }
-
+                lastbranchdone=1;
                 branch=0; //just in case
                 return;
-                
+
               } //end branch 3
               
               return;
