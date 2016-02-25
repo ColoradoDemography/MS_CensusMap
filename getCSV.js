@@ -23,7 +23,7 @@ app.post('/csv', function (req, res) {
   res.status(200).send(csv);
     
   }else{
-    res.send("missing data or filename information");
+    res.send("missing data");
     return;
   }
 

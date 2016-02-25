@@ -21,7 +21,7 @@ NEW
 var express = require('express');
 var app = express();
 var pg = require('pg');
-var conString = "postgres://codemog:demography@104.197.26.248/acs1014";
+var conString = "postgres://codemog:demography@104.197.26.248:5433/acs1014";
 
 
 
