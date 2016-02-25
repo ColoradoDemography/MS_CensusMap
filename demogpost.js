@@ -1,13 +1,8 @@
-//MICROSERVICE for ?
+//MICROSERVICE for getting data triggered by an advanced query
 
-//returns ?:
+//returns from: /demogpost?db=acs1014&schema=data&table=b19013&moe=yes&geonum=108037,108039&type=csv
 /*
-
-OLD
-
-NEW
-
-
+{ source: 'acs1014', schema: 'data', tablemeta:  [ { table_id: 'b19013', table_title: 'MEDIAN HOUSEHOLD INCOME IN THE PAST 12 MONTHS (IN 2014 INFLATION-ADJUSTED DOLLARS)', universe: 'Universe:  Households' } ],  fieldmeta: [ { column_id: 'b19013001', column_title: 'Median household income in the past 12 months (in 2014 Inflation-adjusted dollars)' } ], data: [ { geoname: 'Eagle County, Colorado', state: '8', county: '37',  place: null, tract: null, bg: null, geonum: '108037', b19013001: '73774', b19013_moe001: '5282' }, { geoname: 'Elbert County, Colorado', state: '8', county: '39', place: null, tract: null, bg: null, geonum: '108039', b19013001: '82154', b19013_moe001: '4193' } ], error: [] }
 */
 
 
@@ -532,9 +527,9 @@ if (field==="undefined"){
     function check() {
         if (field === undefined || field ==="undefined") {
           setTimeout(check, 50); 
-          console.log('waiting...');
+          //console.log('waiting...');
         }else{
-          console.log('field: '+field);
+          //console.log('field: '+field);
           continue_program();
           main_logic();
         }
@@ -752,7 +747,7 @@ if (sumlev!=="undefined"){errorarray.push('You specified SUMLEV.  This parameter
 // execute query
 var sql = "SELECT geoname, state, county, place, tract, bg, geonum, " + field + " from search." + schema + jointablelist + " where" + joinlist + " limit " + limit + ";";  
   
-    console.log(sql);
+    //console.log(sql);
   
  sendtodatabase(sql);  //ASYNC
   
@@ -762,7 +757,7 @@ function formatandsend(){
   
       function check2() {
         if (lastbranchdone === 0) {
-          console.log('waiting tablemeta...');
+          //console.log('waiting tablemeta...');
           setTimeout(check2, 50); 
         }else{
           createlast();
@@ -877,7 +872,7 @@ return;
               var tempobject={};
               
               for(var t=0;t<resultdata.length;t++){
-                console.log(resultdata[t]);
+                //console.log(resultdata[t]);
                 
                 tempobject={};
                 

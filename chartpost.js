@@ -1,17 +1,12 @@
 /*MICROSERVICE for Multi-Geo Chart functionality.
 
 Returns :
+http://red-meteor-147235.nitrousapp.com:4000/chartpost?db=acs1014&schema=data&table=b19013&geonum=108093,108059,108035,108119&numerator=fp.b19013001&denominator=1
 
-OLD
 [{"State":"Douglas CO","result":"102626.000000000000","moe":"1592.0000000000000000"},
 {"State":"Jefferson CO","result":"69698.000000000000","moe":"878.0000000000000000"},
 {"State":"Park CO","result":"60800.000000000000","moe":"4938.0000000000000000"},
 {"State":"Teller CO","result":"62559.000000000000","moe":"3881.0000000000000000"}]
-NEW
-[{"geoname":"Douglas County, Colorado","firstvar":"102626.000000000000","secondvar":"1592.0000000000000000"},
-{"geoname":"Jefferson County, Colorado","firstvar":"69698.000000000000","secondvar":"878.0000000000000000"},
-{"geoname":"Park County, Colorado","firstvar":"60800.000000000000","secondvar":"4938.0000000000000000"},
-{"geoname":"Teller County, Colorado","firstvar":"62559.000000000000","secondvar":"3881.0000000000000000"}]
 
 ---
 
@@ -356,10 +351,34 @@ var sql = selectfirst + selectsecond + joinstatement + geonum + ";";
                     return console.error('error running query', err);
                 }
 
+              
+              var tableresult=result.rows;
+              var outputarray=[];
+              var tempobject={};
+              
+              for(var i=0;i<tableresult.length;i++){
+                tempobject={};
+                tempobject.State=stateabbrev(tableresult[i].geoname);
+                tempobject.result=tableresult[i].firstvar;
+                tempobject.moe=tableresult[i].secondvar;
+                outputarray.push(tempobject);
+                
+              }
+              /*
+              [{"State":"Douglas CO","result":"102626.000000000000","moe":"1592.0000000000000000"},
+{"State":"Jefferson CO","result":"69698.000000000000","moe":"878.0000000000000000"},
+{"State":"Park CO","result":"60800.000000000000","moe":"4938.0000000000000000"},
+{"State":"Teller CO","result":"62559.000000000000","moe":"3881.0000000000000000"}]
+NEW
+[{"geoname":"Douglas County, Colorado","firstvar":"102626.000000000000","secondvar":"1592.0000000000000000"},
+{"geoname":"Jefferson County, Colorado","firstvar":"69698.000000000000","secondvar":"878.0000000000000000"},
+{"geoname":"Park County, Colorado","firstvar":"60800.000000000000","secondvar":"4938.0000000000000000"},
+{"geoname":"Teller County, Colorado","firstvar":"62559.000000000000","secondvar":"3881.0000000000000000"}]
+              */
                 res.set({
                     "Content-Type": "application/json"
                 });
-                res.send(JSON.stringify(result.rows));
+                res.send(JSON.stringify(outputarray));
 
 
                 client.end();

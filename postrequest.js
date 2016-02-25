@@ -1,13 +1,12 @@
 var request = require('request');
 
+var data=[[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16]];
+
 request.post(
-    'http://red-meteor-147235.nitrousapp.com:4000/demogpost',
+    'http://red-meteor-147235.nitrousapp.com:4000/csv',
     { json: { 
-      db: 'acs1014',
-      schema: 'data',
-      table: 'b19013',
-      moe: 'yes',
-      geonum: '108037,108039'
+      filename: 'table.csv',
+      data: data
             } },
     function (error, response, body) {
         if (!error && response.statusCode == 200) {
