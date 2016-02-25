@@ -16,6 +16,10 @@ var express = require('express');
 var app = express();
 var pg = require('pg');
 var csv = require('express-csv');
+var bodyParser = require('body-parser');
+
+
+
 
 var conString = "postgres://codemog:demography@104.197.26.248:5433/acs1014";
 var lastbranchdone=0;
@@ -27,10 +31,12 @@ var allowCrossDomain = function(req, res, next) {
     next();
 }
 
+app.use(bodyParser.json()); // support json encoded bodies
+app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 app.use(allowCrossDomain);
 
 
-app.get('/demogpost', function(req, res) {
+app.post('/demogpost', function(req, res) {
 
 
 //PHP.js
@@ -394,20 +400,20 @@ function array_unshift(array) {
   
   
   
-  var field = req.query.field || "undefined";
-  var state = req.query.state || "undefined";  
-  var county = req.query.county || "undefined";  
-  var geonum = req.query.geonum || "undefined";  
-  var geoid = req.query.geoid || "undefined";
-  var sumlev = req.query.sumlev || "undefined";
-  var table = req.query.table || "undefined";
+  var field = req.body.field || "undefined";
+  var state = req.body.state || "undefined";  
+  var county = req.body.county || "undefined";  
+  var geonum = req.body.geonum || "undefined";  
+  var geoid = req.body.geoid || "undefined";
+  var sumlev = req.body.sumlev || "undefined";
+  var table = req.body.table || "undefined";
 
   
  //potential single select
-var type = req.query.type || 'json';
-var db = req.query.db || 'acs1014';
+var type = req.body.type || 'json';
+var db = req.body.db || 'acs1014';
 //set default for schema if it is missing
-var schema = req.query.schema ||  function(){
+var schema = req.body.schema ||  function(){
   if(db==='acs1014' || db==='acs0913' || db==='acs0812' || db==='c2010'){return 'data';}
   if(db==='c2000' || db==='c1990' || db==='c1980'){return 'sf1';}  
   return '';  //no valid database - will deal with later 
@@ -415,18 +421,18 @@ var schema = req.query.schema ||  function(){
 
 
   
-  var geo = req.query.geo || "undefined"; 
-  var series = req.query.series || "undefined";
-  var type = req.query.type || "undefined";  
-  var limit = parseInt(req.query.limit,10) || 1000;  
+  var geo = req.body.geo || "undefined"; 
+  var series = req.body.series || "undefined";
+  var type = req.body.type || "undefined";  
+  var limit = parseInt(req.body.limit,10) || 1000;  
 
 
 
 //if database is acs, check to see if moe option is flagged
 var moe='no';
 if(db=='acs0812' || db=='acs0913' || db=='acs1014'){
-  if (req.query.moe){
-    moe=req.query.moe;
+  if (req.body.moe){
+    moe=req.body.moe;
   }
 } 
 
@@ -460,8 +466,8 @@ if(db=='acs0812' || db=='acs0913' || db=='acs1014'){
 
   //array_push($getkey,$key);  
   
-  for (var propName in req.query) {
-    if (req.query.hasOwnProperty(propName)) {
+  for (var propName in req.body) {
+    if (req.body.hasOwnProperty(propName)) {
         getkey.push(propName);
     }
 }
