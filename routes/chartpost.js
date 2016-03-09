@@ -17,26 +17,11 @@ NEW
 
 */
 
-//node modules
-var express = require('express');
-var app = express();
-var pg = require('pg');
-var conString = "postgres://codemog:demography@104.197.26.248:5433/acs1014";
 
-
-
-
-var allowCrossDomain = function(req, res, next) {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET');
-
-    next();
-}
-
-app.use(allowCrossDomain);
+module.exports = function(app, pg, bodyParser, conString){
 
 /* ########## POST ###################### */
-app.get('/chartpost', function(req, res) {
+app.post('/chartpost', function(req, res) {
 
   
 
@@ -239,10 +224,10 @@ function stateabbrev(name){
 }  
   
  
-  var geonum = req.query.geonum || "undefined";
-  var table = req.query.table || "undefined";  
-  var numerator = req.query.numerator || "undefined";  
-  var denominator = req.query.denominator || "undefined";  
+  var geonum = req.body.geonum || "undefined";
+  var table = req.body.table || "undefined";  
+  var numerator = req.body.numerator || "undefined";  
+  var denominator = req.body.denominator || "undefined";  
 
 
 //declare useful vars
@@ -389,9 +374,4 @@ NEW
 
 });
 
-
-var server = app.listen(4000, function() {
-    var host = server.address().address;
-    var port = server.address().port;
-    console.log('Example app listening at http://', host, port);
-});
+}

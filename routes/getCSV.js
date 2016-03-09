@@ -1,9 +1,4 @@
-var express = require('express');
-var app = express();
-
-var bodyParser = require('body-parser');
-app.use(bodyParser.json()); // support json encoded bodies
-app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
+module.exports = function(app, bodyParser){
 
 app.post('/csv', function (req, res) {
   
@@ -31,12 +26,4 @@ app.post('/csv', function (req, res) {
   
 });
 
-
-
-
-var server = app.listen(4000, function () {
-  var host = server.address().address;
-  var port = server.address().port;
-
-  console.log('Example app listening at http://%s:%s', host, port);
-});
+}
