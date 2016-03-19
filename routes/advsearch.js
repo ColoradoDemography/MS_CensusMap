@@ -23,6 +23,35 @@ app.get('/advsearch', function(req, res) {
   var advdenominator = req.query.advdenominator || "undefined";
 
   
+  advsumlev = advsumlev.replace(/\D/g,''); //only numeric
+  advstate = advstate.replace(/\D/g,''); //only numeric
+  //advsign safe by domain
+  advtext = advtext.replace(/[^0-9.]/g, ''); //only numeric plus decimal
+  advtable = advtable.replace(/\D/g,''); //only numeric
+  if(!advtable.length===5){res.send('table is not valid!');return;}
+  
+  makesafe(advnumerator);
+  makesafe(advdenominator);
+  
+  function makesafe(exp){
+    exp = exp.replace(/Number/g,'');
+    exp = exp.replace(/[{()}]/g, '');
+    exp = exp.replace(/fp.b/g,'');
+    exp = exp.replace(/fp.c/g,'');
+    exp = exp.replace(/\+/g, "");
+    exp = exp.replace(/\-/g, "");
+    exp = exp.replace(/\*/g, "");
+    exp = exp.replace(/\//g, "");
+    var y=exp.replace(/\D/g,'');
+    if(!(exp===y)){
+      res.send('input error.  sql injection protect.'); return;
+    }
+    console.log(exp);
+  }
+  
+  res.send('done.'); return;
+  
+  
 //declare useful vars
   var fullarray=[]; //final data array
 
