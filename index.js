@@ -4,7 +4,7 @@ var app = express();
 var pg = require('pg');
 var csv = require('express-csv');
 var bodyParser = require('body-parser');
-var conString = "postgres://codemog:demography@104.197.26.248:5433/acs1014";
+var conString = "postgres://codemog:demography@gis.dola.colorado.gov:5433/acs1014";
 
 var allowCrossDomain = function(req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
@@ -23,6 +23,7 @@ require('./routes/demogpost.js')(app, pg, csv, bodyParser, conString);
 require('./routes/getCSV.js')(app, bodyParser);
 require('./routes/getranges.js')(app, pg, conString);
 require('./routes/simple.js')(app, pg, conString);
+require('./routes/getACSdb.js')(app, pg, conString);
 
 var server = app.listen(4001, function() {
     var host = server.address().address;
