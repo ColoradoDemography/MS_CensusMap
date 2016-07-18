@@ -25,7 +25,7 @@ require('./routes/getranges.js')(app, pg, conString);
 require('./routes/simple.js')(app, pg, conString);
 require('./routes/getACSdb.js')(app, pg, conString);
 
-var server = app.listen(4001, function() {
+var server = app.listen(4003, function() {
     var host = server.address().address;
     var port = server.address().port;
     console.log('Example app listening at http://', host, port);
