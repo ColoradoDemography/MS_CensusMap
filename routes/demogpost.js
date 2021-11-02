@@ -386,7 +386,7 @@ var type = req.body.type || 'json';
 var db = req.body.db || 'acs1014';
 //set default for schema if it is missing
 var schema = req.body.schema ||  function(){
-  if(db==='acs1519' || db==='acs1418' || db==='acs1317' || db==='acs1216' || db==='acs1115' || db==='acs1014' || db==='acs0913' || db==='acs0812' || db==='acs0711' || db==='acs0610' || db==='c2010' || db==='c2020'){return 'data';}
+  if(db==='acs1519' || db==='acs1418' || db==='acs1317' || db==='acs1216' || db==='acs1115' || db==='acs1014' || db==='acs0913' || db==='acs0812' || db==='acs0711' || db==='acs0610' || db==='c2010'){return 'data';}
   if(db==='c2000' || db==='c1990' || db==='c1980'){return 'sf1';}  
   return '';  //no valid database - will deal with later 
 };
@@ -456,7 +456,7 @@ if(db==='acs1519' || db==='acs1418' || db==='acs1317' || db=='acs0610' || db=='a
   
   
   //validate database selected
-    if(db!=='c1980' && db!=='c1990' && db!=='c2000' && db!=='c2010' && db!=='c2020' && db!=='acs0610' && db!=='acs0711' && db!=='acs0812' && db!=='acs0913' && db!=='acs1014' && db!=='acs1115' && db!=='acs1216' && db!=='acs1317' && db!=='acs1418' && db!=='acs1519'){
+    if(db!=='c1980' && db!=='c1990' && db!=='c2000' && db!=='c2010'&& db!=='acs0610' && db!=='acs0711' && db!=='acs0812' && db!=='acs0913' && db!=='acs1014' && db!=='acs1115' && db!=='acs1216' && db!=='acs1317' && db!=='acs1418' && db!=='acs1519'){
       errorarray.push('Your database choice `' + db + '` is not valid.');
       db="";
       return 'error'; //goto a;
