@@ -23,10 +23,10 @@
   },
   "homepage": "https://github.com/royhobbstn/MS_CensusMap#readme",
   "dependencies": {
-    "body-parser": "^1.15.0",
+    "body-parser": "^1.19.0",
     "express": "^4.17.1",
     "csv-express": "1.2.2",
     "pg": "^8.5.1",
-    "request": "^2.69.0"
+    "request": "^2.88.2"
   }
 }
